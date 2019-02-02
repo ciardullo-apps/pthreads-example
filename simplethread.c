@@ -37,6 +37,13 @@ void simpleThread(int which) {
 }
 
 int main(int argc, char *argv[]) {
+  // Use unbuffered output
+  setvbuf(stdout, NULL, _IONBF, 0);
+
+  // Flush output buffer when using buffered output
+  // See https://unix.stackexchange.com/questions/447898/why-does-a-program-with-fork-sometimes-print-its-output-multiple-times
+  // fflush(stdout);
+
   if(argc != 2) {
     printf("Usage %s numThreads\n", argv[0]);
     exit(1);
