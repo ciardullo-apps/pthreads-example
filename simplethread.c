@@ -1,8 +1,11 @@
 #include "simplethread.h"
 
 /*
-In order to see the effect of a race condition, invoke as follows:
+A race condition exists if the value of sharedVariable is not incremented
+by exactly one on each iteration of the loop.
+In order to see if there is a race condition, invoke as follows:
 ./simplethread 2 | egrep "^\*" | sort -k3,3 -n -k6,6 -n | less
+
 See https://stackoverflow.com/questions/11254942/thread-sync-by-using-mutex-and-barrier-in-c
 */
 int sharedVariable = 0;
@@ -120,46 +123,28 @@ int main(int argc, char *argv[]) {
           handle_error_en(s, "pthread_create");
   }
 
-     /* Now join with each thread, and display its returned value */
+   /* Now join with each thread, and display its returned value */
 
-     for (tnum = 0; tnum < num_threads; tnum++) {
-         s = pthread_join(tinfo[tnum].thread_id, NULL);
-         if (s != 0)
-             handle_error_en(s, "pthread_join");
+   for (tnum = 0; tnum < num_threads; tnum++) {
+       s = pthread_join(tinfo[tnum].thread_id, NULL);
+       if (s != 0)
+           handle_error_en(s, "pthread_join");
 
-         printf("Joined with thread %d;\n",
-                 tinfo[tnum].thread_num);
-     }
+       printf("Joined with thread %d;\n",
+               tinfo[tnum].thread_num);
+   }
 
-     // Barrier destruction
-     if(pthread_barrier_destroy(&barr))
-     {
-         printf("Could not destroy the barrier\n");
-         return -1;
-     }
+   // Barrier destruction
+   if(pthread_barrier_destroy(&barr))
+   {
+       printf("Could not destroy the barrier\n");
+       return -1;
+   }
 
-     // Clean up the mutex
-     pthread_mutex_destroy(&mutex);
+   // Clean up the mutex
+   pthread_mutex_destroy(&mutex);
 
-     free(tinfo);
-     exit(EXIT_SUCCESS);
+   free(tinfo);
+   exit(EXIT_SUCCESS);
 
-  /*
-  Spawns a new pthread using the given function as an entry point.
-  This entry point can be considered the "main" function of that thread of execution.
-  pthread_t thr;
-
-  if(pthread_create(&thr, NULL, &entry_point, NULL)) {
-    printf("Could not create thread\n");
-    exit(2);
-  }
-
-  // Causes the calling thread to wait until the given thread terminates.
-  if(pthread_join(thr, NULL)) {
-    printf("Could not join thread\n");
-    exit(3);
-  }
-
-  exit(0);
-  */
 }
